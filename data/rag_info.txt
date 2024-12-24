@@ -1,0 +1,19 @@
+Retrieval Augmented Generation (RAG) is a technique that enhances Large Language Models (LLMs) by providing them with relevant external knowledge during the generation process. This approach combines the power of retrieval-based systems with generative AI.
+
+Key Components of RAG:
+1. Knowledge Base: A collection of documents or information stored in a vector database.
+2. Embeddings: Vector representations of text that capture semantic meaning.
+3. Retriever: A system that finds relevant information from the knowledge base.
+4. Generator: An LLM that produces responses using the retrieved context.
+
+Benefits of RAG:
+- Improved accuracy by grounding responses in specific knowledge
+- Reduced hallucination compared to pure LLM responses
+- Ability to work with up-to-date or domain-specific information
+- More controllable and transparent generation process
+
+Common Use Cases:
+- Question answering systems
+- Customer support chatbots
+- Documentation search and summarization
+- Knowledge base exploration 
