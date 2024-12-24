@@ -3,10 +3,9 @@ from typing import List
 from dotenv import load_dotenv
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-from langchain_openai import ChatOpenAI
 
 # Load environment variables
 load_dotenv()
@@ -63,7 +62,8 @@ def main():
     questions = [
         "What is RAG and how does it work?",
         "What are the main benefits of using RAG?",
-        "What are some common use cases for RAG?"
+        "What are some common use cases for RAG?",
+        "What is the future trend of RAG?"
     ]
     
     # Query the system
