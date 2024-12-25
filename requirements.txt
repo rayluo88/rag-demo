@@ -9,4 +9,10 @@ pydantic>=2.5.0
 python-dotenv
 faiss-cpu
 openai>=1.6.1
-httpx>=0.24.1 
+httpx>=0.24.1
+gradio>=4.19.1
+python-docx>=0.8.11
+unstructured>=0.10.30
+unstructured[docx]>=0.10.30
+python-magic-bin>=0.4.14; platform_system == 'Windows'
+python-magic>=0.4.27; platform_system != 'Windows' 
