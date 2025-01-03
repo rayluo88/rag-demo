@@ -1,20 +1,23 @@
 # Simple RAG (Retrieval Augmented Generation) Example
 
-This is a simple implementation of RAG using LangChain, FAISS, and OpenAI. The project demonstrates how to:
-1. Load and process documents (supports .txt and .docx files)
-2. Create embeddings and store them in a vector database
-3. Retrieve relevant context for questions
-4. Generate answers using the retrieved context
+This is a simple implementation of RAG using LangChain, FAISS, and a hybrid approach with OpenAI (embeddings) and DeepSeek (chat completion). The project demonstrates how to:
+1. Load and process documents (supports .txt, .docx, and .pdf files)
+2. Create embeddings using OpenAI's embedding service
+3. Store embeddings in a vector database
+4. Generate answers using DeepSeek's chat model
 
 ## Prerequisites
 
+### API Requirements
+- OpenAI API key (for embeddings)
+- DeepSeek API key (for chat completion)
+
 ### Python Requirements
 - Python 3.9+
-- OpenAI API key
-- (Optional but recommended) Virtual environment
+- Virtual environment (recommended)
 
 ### System Dependencies
-For Word document support on Linux/WSL:
+For document processing on Linux/WSL:
 ```bash
 sudo apt-get update && sudo apt-get install -y \
     libmagic1 \
@@ -44,12 +47,22 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-4. Set up your OpenAI API key:
+4. Set up your API configuration:
    - Copy the `.env.template` file to `.env`:
      ```bash
      cp .env.template .env
      ```
-   - Edit `.env` and replace `your_api_key_here` with your actual OpenAI API key
+   - Edit `.env` and configure both APIs:
+     ```
+     # DeepSeek API Configuration (using OpenAI-compatible format)
+     DEEPSEEK_API_KEY=your_deepseek_api_key_here
+     DEEPSEEK_API_BASE=https://api.deepseek.com
+     DEEPSEEK_MODEL=deepseek-chat
+
+     # OpenAI API Configuration (for embeddings)
+     OPENAI_API_KEY=your_openai_api_key_here
+     ```
+   Note: DeepSeek uses an OpenAI-compatible API format, but it's a separate service with its own API key.
 
 5. Run the example:
    - For command-line interface:
@@ -72,61 +85,117 @@ pip install -r requirements.txt
 
 ## Features
 
-- Uses LangChain's latest components (langchain-community, langchain-openai)
+- Uses LangChain's latest components
 - FAISS vector store for efficient similarity search
-- OpenAI's GPT-3.5-turbo for generation (configurable to use GPT-4)
+- Hybrid API approach:
+  - OpenAI's proven embeddings service for document vectorization
+  - DeepSeek's powerful chat model for response generation
 - Document chunking with overlap for better context preservation
 - Interactive web interface with file upload support
-- Support for both text (.txt) and Word (.docx) documents
+- Support for multiple document formats:
+  - Text files (.txt)
+  - Word documents (.docx)
+  - PDF documents (.pdf)
 - Chat-based interface for natural interaction
+
+## API Configuration
+
+The system uses a hybrid approach combining two different services:
+
+### OpenAI API (Embeddings)
+- Used for converting documents into vector embeddings
+- Requires OpenAI API key in `OPENAI_API_KEY`
+- Uses the proven `text-embedding-ada-002` model
+- Uses OpenAI's standard endpoint (https://api.openai.com/v1)
+
+### DeepSeek API (Chat Completion)
+- Used for generating responses to questions
+- Requires DeepSeek API key in `DEEPSEEK_API_KEY`
+- Uses DeepSeek's API endpoint (https://api.deepseek.com)
+- Uses DeepSeek's chat model
+- Uses OpenAI-compatible API format but is a separate service
 
 ## Web Interface
 
 The project includes a Gradio-based web interface (`app.py`) that provides:
-- File upload capability for text and Word documents
+- File upload capability for multiple document formats
 - Chat interface for asking questions
 - Example questions to get started
 - Real-time document processing and querying
 
-## Document Processing
+## Document Processing Pipeline
 
-The system supports:
-- Text files (.txt)
-- Word documents (.docx)
+1. Document Loading:
+   - Supports multiple formats (.txt, .docx, .pdf)
+   - Uses appropriate loaders for each format
+   - Handles file size limits and validation
 
-Each document is:
-1. Loaded using appropriate document loaders
-2. Split into chunks with overlap for context preservation
-3. Converted to embeddings and stored in FAISS
-4. Made available for question answering
+2. Text Processing:
+   - Splits documents into manageable chunks
+   - Maintains context with chunk overlap
+   - Prepares text for embedding
+
+3. Embedding Generation:
+   - Uses OpenAI's embedding service
+   - Converts text chunks to vector representations
+   - Stores vectors in FAISS database
+
+4. Question Answering:
+   - Retrieves relevant context using FAISS
+   - Processes questions using DeepSeek's chat model
+   - Generates context-aware responses
 
 ## Troubleshooting
+
+### API Configuration Issues
+1. OpenAI API (Embeddings):
+   - Verify `OPENAI_API_KEY` is set correctly
+   - Ensure you have access to the embeddings API
+   - Check OpenAI API quota and billing
+   - Verify network access to api.openai.com
+
+2. DeepSeek API (Chat):
+   - Verify `DEEPSEEK_API_KEY` is set correctly
+   - Ensure `DEEPSEEK_API_BASE` is set to https://api.deepseek.com
+   - Check DeepSeek API quota and limits
+   - Verify network access to api.deepseek.com
+
+### Document Processing Issues
+1. For PDF documents:
+   - Ensure poppler-utils is installed (Linux/WSL)
+   - Try alternative PDF loader if one fails
+   - Check if PDF is text-based (not scanned)
+
+2. For Word documents:
+   - Ensure all system dependencies are installed
+   - Check that python-docx and unstructured packages are installed
+   - Verify document isn't corrupted or password-protected
+
+3. For text files:
+   - Ensure proper file encoding (UTF-8 recommended)
+   - Check file permissions
 
 ### General Issues
 1. Ensure you're using a fresh virtual environment
 2. Try installing dependencies one by one if bulk installation fails
 3. Check Python version compatibility (3.9+ recommended)
+4. Verify all required system dependencies are installed
 
-### Document Processing Issues
-1. For Word documents:
-   - Ensure all system dependencies are installed (Linux/WSL)
-   - Check that python-docx and unstructured packages are installed
-   - Verify the document isn't corrupted or password-protected
-2. For text files:
-   - Ensure proper file encoding (UTF-8 recommended)
-   - Check file permissions
+## Costs and API Usage
 
-### API Issues
-1. Verify your OpenAI API key is correctly set in .env
-2. Check your API quota and limits
-3. Ensure you have billing set up in your OpenAI account
+This implementation uses two separate API services:
 
-## Note on Costs
+1. OpenAI API Costs:
+   - Charged for document embedding generation
+   - Based on input token count
+   - Uses text-embedding-ada-002 model pricing
 
-This example uses OpenAI's API which has associated costs:
-- Embedding API calls for document indexing
-- GPT-3.5-turbo for answer generation (default)
-- You can modify `model_name` in the code to use different models
+2. DeepSeek API Costs:
+   - Charged for chat completion responses
+   - Based on input/output token count
+   - Uses DeepSeek chat model pricing
+
+Monitor both API accounts for usage and costs separately.
 
 ## Contributing
 
