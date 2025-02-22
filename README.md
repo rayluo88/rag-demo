@@ -52,17 +52,26 @@ pip install -r requirements.txt
      ```bash
      cp .env.template .env
      ```
-   - Edit `.env` and configure both APIs:
+   - Edit `.env` to configure your preferred LLM provider and API keys:
      ```
-     # DeepSeek API Configuration (using OpenAI-compatible format)
+     # Choose your LLM provider
+     USE_DEEPSEEK=false  # Set to true for DeepSeek, false for OpenAI
+
+     # OpenAI Configuration (required for embeddings)
+     OPENAI_API_KEY=your_openai_api_key_here
+
+     # DeepSeek Configuration (only needed if USE_DEEPSEEK=true)
      DEEPSEEK_API_KEY=your_deepseek_api_key_here
      DEEPSEEK_API_BASE=https://api.deepseek.com
      DEEPSEEK_MODEL=deepseek-chat
-
-     # OpenAI API Configuration (for embeddings)
-     OPENAI_API_KEY=your_openai_api_key_here
      ```
-   Note: DeepSeek uses an OpenAI-compatible API format, but it's a separate service with its own API key.
+
+   Notes:
+   - OpenAI API key is always required for embeddings
+   - Choose your LLM provider by setting USE_DEEPSEEK
+   - If using DeepSeek, configure all DeepSeek-related variables
+   - If using OpenAI, only OPENAI_API_KEY is needed
+   - DeepSeek uses OpenAI-compatible API format but requires its own API key
 
 5. Run the example:
    - For command-line interface:
