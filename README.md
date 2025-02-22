@@ -85,28 +85,43 @@ pip install -r requirements.txt
 
 ## Features
 
-- Uses LangChain's latest components
-- FAISS vector store for efficient similarity search
-- Hybrid API approach:
-  - OpenAI's proven embeddings service for document vectorization
-  - DeepSeek's powerful chat model for response generation
-- Document chunking with overlap for better context preservation
-- Interactive web interface with file upload support
-- Support for multiple document formats:
-  - Text files (.txt)
-  - Word documents (.docx)
-  - PDF documents (.pdf)
-- Chat-based interface for natural interaction
+- Advanced RAG Implementation:
+  - Pre-loaded knowledge base from data/ directory
+  - Dynamic knowledge addition through file uploads
+  - Combined search across all document sources
+- Flexible LLM Provider Support:
+  - Easy switching between OpenAI and DeepSeek
+  - Configured through environment variables
+  - OpenAI-compatible API format support
+- Document Processing:
+  - Multiple format support (.txt, .docx, .pdf)
+  - Automatic chunking with context preservation
+  - File size validation and error handling
+- Vector Store Management:
+  - FAISS for efficient similarity search
+  - Combined index for all knowledge sources
+  - Dynamic updates without reloading
+- Hybrid API Architecture:
+  - OpenAI's embeddings for document vectorization
+  - Choice of LLM providers for response generation
+  - Consistent API interface across providers
+- Interactive Interface:
+  - Real-time document processing
+  - Chat-based interaction
+  - Progress tracking for operations
+  - Example questions for quick start
 
 ## API Configuration
 
-The system uses a hybrid approach combining two different services:
+The system supports a flexible configuration approach:
 
 ### OpenAI API (Embeddings)
 - Used for converting documents into vector embeddings
 - Requires OpenAI API key in `OPENAI_API_KEY`
 - Uses the proven `text-embedding-ada-002` model
-- Uses OpenAI's standard endpoint (https://api.openai.com/v1)
+
+### LLM Provider (Configurable)
+Configure in .env file:
 
 ### DeepSeek API (Chat Completion)
 - Used for generating responses to questions
@@ -125,25 +140,25 @@ The project includes a Gradio-based web interface (`app.py`) that provides:
 
 ## Document Processing Pipeline
 
-1. Document Loading:
-   - Supports multiple formats (.txt, .docx, .pdf)
-   - Uses appropriate loaders for each format
-   - Handles file size limits and validation
+1. Knowledge Base Initialization:
+   - Loads pre-existing documents from data/ directory
+   - Creates initial vector store
+   - Maintains persistent knowledge base
 
-2. Text Processing:
-   - Splits documents into manageable chunks
-   - Maintains context with chunk overlap
-   - Prepares text for embedding
+2. Dynamic Document Processing:
+   - Handles user uploads in real-time
+   - Adds to existing vector store
+   - Combines with knowledge base
 
-3. Embedding Generation:
-   - Uses OpenAI's embedding service
-   - Converts text chunks to vector representations
-   - Stores vectors in FAISS database
+3. Unified Search:
+   - Searches across all document sources
+   - Retrieves relevant context from combined index
+   - Provides comprehensive answers
 
-4. Question Answering:
-   - Retrieves relevant context using FAISS
-   - Processes questions using DeepSeek's chat model
-   - Generates context-aware responses
+4. Response Generation:
+   - Uses configured LLM provider
+   - Incorporates retrieved context
+   - Generates informed responses
 
 ## Troubleshooting
 

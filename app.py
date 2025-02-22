@@ -29,22 +29,36 @@ class RAGChat:
     def __init__(self):
         # Use OpenAI for embeddings
         self.embeddings = OpenAIEmbeddings(
-            #api_key=os.getenv("OPENAI_API_KEY"),  # OpenAI API key for embeddings
-            #base_url=OPENAI_API_BASE,  # OpenAI's default endpoint
-            #model="text-embedding-ada-002"
+            #model="text-embedding-ada-002"  # default model
         )
         
-        # Use Deepseek for chat completion (using OpenAI-compatible format)
-        self.llm = ChatOpenAI(
-            temperature=0,
-            model_name=DEEPSEEK_MODEL,
-            base_url=DEEPSEEK_API_BASE,
-            api_key=os.getenv("DEEPSEEK_API_KEY")  # DeepSeek API key
-        )
+        # Whether to use Deepseek for chat completion (using OpenAI-compatible format), configured in .env
+        use_deepseek = os.getenv("USE_DEEPSEEK", "false").lower() == "true"
+
+        if use_deepseek:
+            self.llm = ChatOpenAI(
+                temperature=0,
+                model_name=DEEPSEEK_MODEL,
+                base_url=DEEPSEEK_API_BASE,
+                api_key=os.getenv("DEEPSEEK_API_KEY")
+            )
+            print(f"Using DeepSeek chat model: {DEEPSEEK_MODEL} at {DEEPSEEK_API_BASE}")
+        else:
+            self.llm = ChatOpenAI(
+                temperature=0,
+                api_key=os.getenv("OPENAI_API_KEY")
+            )
+            print(f"Using OpenAI chat model at {OPENAI_API_BASE}")
         self.vector_store = None
         
-        print(f"Using DeepSeek chat model: {DEEPSEEK_MODEL} at {DEEPSEEK_API_BASE}")
-        print(f"Using OpenAI embeddings service at {OPENAI_API_BASE}")
+        # Load initial knowledge base
+        try:
+            initial_docs = self.load_knowledge_base()
+            if initial_docs:
+                self.update_vector_store(initial_docs)
+                print(f"Loaded {len(initial_docs)} documents from knowledge base")
+        except Exception as e:
+            print(f"Warning: Could not load knowledge base: {str(e)}")
         
     def check_file_size(self, file_path: str) -> bool:
         """Check if file size is within limits."""
@@ -135,6 +149,29 @@ class RAGChat:
                 
         except Exception as e:
             return f"Error processing question: {str(e)}"
+
+    def load_knowledge_base(self, data_dir: str = "data", progress=gr.Progress()) -> List:
+        """Load all documents from knowledge base directory."""
+        all_docs = []
+        if not os.path.exists(data_dir):
+            print(f"Warning: {data_dir} directory not found")
+            return all_docs
+        
+        progress(0, desc="Loading knowledge base")
+        files = [f for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
+        
+        for idx, file in enumerate(files):
+            file_path = os.path.join(data_dir, file)
+            try:
+                if any(file.lower().endswith(ext) for ext in ['.txt', '.docx', '.pdf']):
+                    progress(idx/len(files), desc=f"Processing {file}")
+                    docs = self.process_file(file_path)
+                    all_docs.extend(docs)
+            except Exception as e:
+                print(f"Warning: Error processing {file}: {str(e)}")
+            
+        progress(1.0, desc="Knowledge base loaded")
+        return all_docs
 
 # Initialize the RAG system
 rag_chat = RAGChat()
